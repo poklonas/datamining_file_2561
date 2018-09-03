@@ -1,18 +1,15 @@
-class logistic_model():
-    self.iteration
-    self.learnRate
-    self.weight
-    self.feature
-    self.target
+import numpy as np 
+class Logistic_model():
 
     def __init__(self, lr, x, y):
         self.learnRate = lr
-        self.feature = x
+        self.x = x
         self.target = y
         self.iteration  = 1000
+        self.weight = x
     
     def sigmoid(self):
-        z = np.dot(self.featrue, self.weight)
+        z = np.dot(self.x, self.weight)
         return 1 / 1 + np.exp(-z)
 
     def gradian(self):
@@ -28,4 +25,6 @@ class logistic_model():
             self.weight -= self.learnRate * self.gradian()
     
     
-            
+x = Logistic_model(0.5, [1,2,3],[1,1,1])
+print(x.fit())
+print(x.weight)
