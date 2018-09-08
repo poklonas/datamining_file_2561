@@ -11,9 +11,10 @@ class BayesModel:
         self.prior_p = np.array([np.zeros_like(self.x), np.ones_like(self.x)])
         self.var = np.array([])
         self.mean = np.array([])
+        self.decision = np.array([])
         for i in range(0 , self.y.max() - self.y.min() + 1):
-            self.mean = np.append(  self.mean, np.mean(self.x[self.y == i]))
-            self.var = np.append(  self.var, np.var(self.x[self.y == i]))
+            self.mean = np.append(self.mean, np.mean(self.x[self.y == i]))
+            self.var = np.append(self.var, np.var(self.x[self.y == i]))
 
     def set_parm(self, var, mean):
         self.var = var
@@ -42,12 +43,27 @@ class BayesModel:
         x2 = np.arange(min, max, step)
         pr1 = (1/(np.sqrt(2 * np.pi ) * self.var[1])) *  np.exp((-1/2)*(((x1-self.mean[1])/self.var[1])**2) )
         pr0 = (1/(np.sqrt(2 * np.pi ) * self.var[0])) *  np.exp((-1/2)*(((x2-self.mean[0])/self.var[0])**2) )
+        if(pr1.max() > pr0.max()):
+            max_y = pr1.max()
+        else:
+            max_y = pr0.max()
+        for i in self.decision:
+            plt.plot([i,i], [max_y,0], '--g')
         plt.plot(x1, pr1, '-r')
         plt.plot(x2, pr0, '-b')
         plt.xlabel('X')
         plt.ylabel('likelyhood')
         plt.show()
         
+    def decision_line_finder(self):
+        if(self.var[0] == self.var[1]):
+            x = (self.mean[0] + self.mean[1])/2
+            self.decision = np.append(self.decision, x)
+        else:
+            x1 = ((np.log(self.var[0])- np.log(self.var[1]))*(self.var[1]**2)*(self.var[0]**2)) + (self.var[1]*(self.mean[0]**2)) - (self.var[0]*(self.mean[1]**2))
+            x2 = (x1  - ((self.mean[0]*self.var[1]) - (self.mean[1]*self.var[0])) )/ (self.var[0] - self.var[1])
+            self.decision = np.append(self.decision, x1)
+            self.decision = np.append(self.decision, x2)
 
 #######################################################
 path = 'D:\WORK\datamine\w5\datamining_file_2561\Iris-2type.csv'
@@ -56,15 +72,19 @@ x = data['PetalLengthCm'].values
 y = data['target'].values
 #######################################################  เซ็ทโดยอินพุต
 bayes = BayesModel( x, y)
-bayes.normal_dis_one(10, -2, 0.1)
+bayes.normal_dis_one(6, 0, 0.1)
 bayes.prior_p_finder()
 bayes.posterior()
+bayes.decision_line_finder()
+bayes.normal_dis_one(6, 0, 0.1)
 #######################################################  เซ็ทเอง
 x = np.array([1,2,3,4,5,6,7,8,9,10])
 y = np.array([0,0,0,0,0,1,1,1,1,1])
 bayes = BayesModel( x, y)
-bayes.set_parm([1, 2], [2,7])
+bayes.set_parm([2, 2], [2,7])
 bayes.normal_dis_one(10, -2, 0.1)
 bayes.prior_p_finder()
 bayes.posterior()
+bayes.decision_line_finder()
+bayes.normal_dis_one(10, -2, 0.1)
 ########################################################
